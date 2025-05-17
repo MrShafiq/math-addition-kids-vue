@@ -16,17 +16,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { Answer } from '../types';
-import { useGameStore } from '../stores/game';
+import { computed } from 'vue'
+import type { Answer } from '../types'
+import { useGameStore } from '../stores/game'
 
-const store = useGameStore();
-const answers = computed(() => store.answers);
+const store = useGameStore()
+const answers = computed(() => store.answers)
 
 function handleDragStart(event: DragEvent, answer: Answer) {
   if (event.dataTransfer) {
-    event.dataTransfer.setData('text/plain', answer.id);
-    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', answer.id)
+    event.dataTransfer.effectAllowed = 'move'
   }
 }
 </script>
@@ -37,7 +37,7 @@ function handleDragStart(event: DragEvent, answer: Answer) {
 }
 
 .answer-tile {
-  background-color: #2196F3;
+  background-color: #2196f3;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
@@ -49,4 +49,4 @@ function handleDragStart(event: DragEvent, answer: Answer) {
 .answer-tile:hover {
   transform: scale(1.05);
 }
-</style> 
+</style>

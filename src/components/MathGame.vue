@@ -4,21 +4,19 @@
     <div class="game-container">
       <div class="questions-grid">
         <div v-for="(problem, index) in problems" :key="index" class="problem-card">
-          <div class="problem-display">
+          <div class="problem-display" @dragover.prevent @drop="dropAnswer($event, index)">
             <span class="number">{{ problem.num1 }}</span>
             <span class="operator">+</span>
             <span class="number">{{ problem.num2 }}</span>
             <span class="operator">=</span>
-            <div 
+            <div
               class="answer-slot"
-              :class="{ 
+              :class="{
                 'has-answer': problem.userAnswer !== null,
-                'correct': problem.isCorrect,
-                'incorrect': problem.userAnswer !== null && !problem.isCorrect,
-                'shake': problem.isShaking
+                correct: problem.isCorrect,
+                incorrect: problem.userAnswer !== null && !problem.isCorrect,
+                shake: problem.isShaking,
               }"
-              @dragover.prevent
-              @drop="dropAnswer($event, index)"
             >
               <span v-if="problem.userAnswer !== null">{{ problem.userAnswer }}</span>
               <ConfettiExplosion v-if="problem.showConfetti" />
@@ -28,29 +26,25 @@
       </div>
 
       <div class="answers-container">
-        <div 
-          v-for="answerCard in availableAnswers" 
+        <div
+          v-for="answerCard in availableAnswers"
           :key="answerCard.id"
           class="answer-card"
           draggable="true"
           @dragstart="dragStart($event, answerCard.id)"
-          :class="{ 'used': answerCard.used }"
+          :class="{ used: answerCard.used }"
         >
           {{ answerCard.value }}
         </div>
       </div>
 
       <div class="score-display" v-if="showScore">
-        <div class="score-text" :class="{ 'perfect': score === problems.length }">
+        <div class="score-text" :class="{ perfect: score === problems.length }">
           Score: {{ score }}/{{ problems.length }}
         </div>
       </div>
 
-      <button 
-        @click="generateNewProblems" 
-        class="next-button"
-        v-if="showScore"
-      >
+      <button @click="generateNewProblems" class="next-button" v-if="showScore">
         Next Set of Problems
       </button>
     </div>
@@ -58,34 +52,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
-import ConfettiExplosion from 'vue-confetti-explosion';
+import { ref, computed, nextTick } from 'vue'
+import ConfettiExplosion from 'vue-confetti-explosion'
 
 interface Problem {
-  num1: number;
-  num2: number;
-  userAnswer: number | null;
-  isCorrect?: boolean;
-  isShaking: boolean;
-  droppedAnswerCardId: number | null; // To track which answer card was dropped here
-  showConfetti: boolean; // To trigger confetti animation
+  num1: number
+  num2: number
+  userAnswer: number | null
+  isCorrect?: boolean
+  isShaking: boolean
+  droppedAnswerCardId: number | null // To track which answer card was dropped here
+  showConfetti: boolean // To trigger confetti animation
 }
 
 interface AnswerCard {
-  id: number;
-  value: number;
-  used: boolean;
+  id: number
+  value: number
+  used: boolean
 }
 
-const problems = ref<Problem[]>([]);
-const availableAnswers = ref<AnswerCard[]>([]);
-const showScore = ref(false);
-const score = ref(0);
+const problems = ref<Problem[]>([])
+const availableAnswers = ref<AnswerCard[]>([])
+const showScore = ref(false)
+const score = ref(0)
 
 // Sound effects
-const correctSound = new Audio('/sounds/correct.mp3');
-const incorrectSound = new Audio('/sounds/incorrect.mp3');
-const successSound = new Audio('/sounds/success.mp3');
+const correctSound = new Audio('/sounds/correct.mp3')
+const incorrectSound = new Audio('/sounds/incorrect.mp3')
+const successSound = new Audio('/sounds/success.mp3')
 
 const generateNewProblems = () => {
   // Generate 10 random problems
@@ -96,117 +90,121 @@ const generateNewProblems = () => {
     isCorrect: false,
     isShaking: false,
     droppedAnswerCardId: null,
-    showConfetti: false // Initialize showConfetti
-  }));
+    showConfetti: false, // Initialize showConfetti
+  }))
 
   // Generate all possible answers
-  const allAnswers = problems.value.map(p => p.num1 + p.num2);
-  
+  const allAnswers = problems.value.map((p) => p.num1 + p.num2)
+
   // Add some wrong answers (ensuring some duplicates of correct answers)
-  const wrongAnswers = Array.from({ length: 6 }, () => 
-    Math.floor(Math.random() * 20)
-  );
+  const wrongAnswers = Array.from({ length: 6 }, () => Math.floor(Math.random() * 20))
 
   // Combine all answers and create answer cards with unique IDs
-  const combinedAnswers = [...allAnswers, ...wrongAnswers];
-  availableAnswers.value = combinedAnswers.map((value, index) => ({
-    id: index, // Simple unique ID for each card
-    value: value,
-    used: false,
-  })).sort(() => Math.random() - 0.5); // Shuffle the answer cards
+  const combinedAnswers = [...allAnswers, ...wrongAnswers]
+  availableAnswers.value = combinedAnswers
+    .map((value, index) => ({
+      id: index, // Simple unique ID for each card
+      value: value,
+      used: false,
+    }))
+    .sort(() => Math.random() - 0.5) // Shuffle the answer cards
 
-  showScore.value = false;
-  score.value = 0;
-};
+  showScore.value = false
+  score.value = 0
+}
 
 const allQuestionsAnswered = computed(() => {
-  return problems.value.every(p => p.userAnswer !== null);
-});
+  return problems.value.every((p) => p.userAnswer !== null)
+})
 
 const isAnswerUsed = (answer: number) => {
-  return problems.value.some(p => p.userAnswer === answer);
-};
+  return problems.value.some((p) => p.userAnswer === answer)
+}
 
 const dragStart = (event: DragEvent, answerCardId: number) => {
   if (event.dataTransfer) {
-    event.dataTransfer.setData('text/plain', answerCardId.toString());
+    event.dataTransfer.setData('text/plain', answerCardId.toString())
   }
-};
+}
 
 const playShakeAnimation = (index: number) => {
-  problems.value[index].isShaking = true;
+  problems.value[index].isShaking = true
   setTimeout(() => {
-    problems.value[index].isShaking = false;
-  }, 500);
-};
+    problems.value[index].isShaking = false
+  }, 500)
+}
 
 const dropAnswer = async (event: DragEvent, problemIndex: number) => {
-  const answerCardId = parseInt(event.dataTransfer?.getData('text/plain') || '-1');
-  const droppedAnswerCard = availableAnswers.value.find(card => card.id === answerCardId);
-  const problem = problems.value[problemIndex];
+  const answerCardId = parseInt(event.dataTransfer?.getData('text/plain') || '-1')
+  const droppedAnswerCard = availableAnswers.value.find((card) => card.id === answerCardId)
+  const problem = problems.value[problemIndex]
 
   if (!droppedAnswerCard || droppedAnswerCard.used) {
     // If the card is not found or already used (shouldn't happen with correct dragStart, but good check)
-     playShakeAnimation(problemIndex);
-    return;
+    playShakeAnimation(problemIndex)
+    return
   }
 
   // If there was a previous answer in this slot, mark the old card as unused
   if (problem.droppedAnswerCardId !== null) {
-    const previousAnswerCard = availableAnswers.value.find(card => card.id === problem.droppedAnswerCardId);
+    const previousAnswerCard = availableAnswers.value.find(
+      (card) => card.id === problem.droppedAnswerCardId,
+    )
     if (previousAnswerCard) {
-      previousAnswerCard.used = false;
+      previousAnswerCard.used = false
     }
   }
 
   // Assign the new answer card to the problem slot
-  problem.userAnswer = droppedAnswerCard.value;
-  problem.droppedAnswerCardId = droppedAnswerCard.id;
-  droppedAnswerCard.used = true;
+  problem.userAnswer = droppedAnswerCard.value
+  problem.droppedAnswerCardId = droppedAnswerCard.id
+  droppedAnswerCard.used = true
 
-  const correctAnswer = problem.num1 + problem.num2;
-  problem.isCorrect = problem.userAnswer === correctAnswer;
+  const correctAnswer = problem.num1 + problem.num2
+  problem.isCorrect = problem.userAnswer === correctAnswer
 
   // Play sound effect and handle incorrect answer reset
   if (problem.isCorrect) {
-    correctSound.play();
+    correctSound.play()
     // Trigger confetti animation
-    problem.showConfetti = false; // Resetting before setting to true is important for re-triggering
-    await nextTick();
-    problem.showConfetti = true;
+    problem.showConfetti = false // Resetting before setting to true is important for re-triggering
+    await nextTick()
+    problem.showConfetti = true
   } else {
-    incorrectSound.play();
-    playShakeAnimation(problemIndex);
-    
+    incorrectSound.play()
+    playShakeAnimation(problemIndex)
+
     // Reset the answer after a short delay
     setTimeout(() => {
-      problem.userAnswer = null;
-      problem.isCorrect = false;
+      problem.userAnswer = null
+      problem.isCorrect = false
       // Mark the specific card that was dropped here as unused
       if (problem.droppedAnswerCardId !== null) {
-         const cardToReset = availableAnswers.value.find(card => card.id === problem.droppedAnswerCardId);
-         if(cardToReset) {
-            cardToReset.used = false;
-         }
-         problem.droppedAnswerCardId = null;
+        const cardToReset = availableAnswers.value.find(
+          (card) => card.id === problem.droppedAnswerCardId,
+        )
+        if (cardToReset) {
+          cardToReset.used = false
+        }
+        problem.droppedAnswerCardId = null
       }
-    }, 1000); // Reset after 1 second
+    }, 1000) // Reset after 1 second
   }
 
   // Check if all questions are answered (correctly or incorrectly)
   if (allQuestionsAnswered.value) {
-    const correctCount = problems.value.filter(p => p.isCorrect).length;
-    score.value = correctCount;
-    showScore.value = true;
-    
+    const correctCount = problems.value.filter((p) => p.isCorrect).length
+    score.value = correctCount
+    showScore.value = true
+
     if (correctCount === problems.value.length) {
-      successSound.play();
+      successSound.play()
     }
   }
-};
+}
 
 // Generate first set of problems when component mounts
-generateNewProblems();
+generateNewProblems()
 </script>
 
 <style scoped>
@@ -274,14 +272,14 @@ generateNewProblems();
 }
 
 .answer-slot.correct {
-  border-color: #4CAF50;
-  background-color: #E8F5E9;
+  border-color: #4caf50;
+  background-color: #e8f5e9;
   animation: correct-pulse 0.5s ease;
 }
 
 .answer-slot.incorrect {
   border-color: #f44336;
-  background-color: #FFEBEE;
+  background-color: #ffebee;
 }
 
 .answer-slot.shake {
@@ -339,8 +337,8 @@ generateNewProblems();
 }
 
 .score-text.perfect {
-  background-color: #E8F5E9;
-  color: #2E7D32;
+  background-color: #e8f5e9;
+  color: #2e7d32;
   animation: celebrate 1s ease;
 }
 
@@ -366,21 +364,40 @@ button:hover:not(:disabled) {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 @keyframes correct-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes celebrate {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Style for vue-confetti-explosion */
@@ -390,4 +407,4 @@ button:hover:not(:disabled) {
   left: 50%;
   transform: translate(-50%, -50%);
 }
-</style> 
+</style>

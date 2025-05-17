@@ -34,35 +34,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { Question, Feedback } from '../types';
-import { useGameStore } from '../stores/game';
+import { computed } from 'vue'
+import type { Question, Feedback } from '../types'
+import { useGameStore } from '../stores/game'
 
 const props = defineProps<{
-  question: Question;
-}>();
+  question: Question
+}>()
 
-const store = useGameStore();
+const store = useGameStore()
 
-const feedback = computed(() => store.feedback);
+const feedback = computed(() => store.feedback)
 
 function handleDrop(event: DragEvent) {
-  const answerId = event.dataTransfer?.getData('text/plain');
+  const answerId = event.dataTransfer?.getData('text/plain')
   if (answerId) {
-    store.placeAnswer(props.question.id, answerId);
-    setTimeout(() => store.clearFeedback(), 1000);
+    store.placeAnswer(props.question.id, answerId)
+    setTimeout(() => store.clearFeedback(), 1000)
   }
 }
 
 function handleDragStart(event: DragEvent) {
   if (event.dataTransfer) {
-    event.dataTransfer.setData('text/plain', `answer-${props.question.answer}`);
-    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', `answer-${props.question.answer}`)
+    event.dataTransfer.effectAllowed = 'move'
   }
 }
 
 function handleDragEnd() {
-  store.removeAnswer(props.question.id);
+  store.removeAnswer(props.question.id)
 }
 </script>
 
@@ -77,7 +77,7 @@ function handleDragEnd() {
 }
 
 .answer-tile {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
@@ -105,4 +105,4 @@ function handleDragEnd() {
     transform: translateY(0);
   }
 }
-</style> 
+</style>
