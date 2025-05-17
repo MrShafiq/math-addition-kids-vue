@@ -16,6 +16,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { Answer } from '../types';
 import { useGameStore } from '../stores/game';
 
