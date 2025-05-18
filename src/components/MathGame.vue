@@ -2,51 +2,58 @@
   <div class="math-game">
     <h1 class="text-center mb-4">Math Addition Game</h1>
     <div class="game-container">
-      <div class="questions-grid">
-        <div v-for="(problem, index) in problems" :key="index" class="problem-card">
-          <div class="problem-display" @dragover.prevent @drop="dropAnswer($event, index)">
-            <span class="number">{{ problem.num1 }}</span>
-            <span class="operator">+</span>
-            <span class="number">{{ problem.num2 }}</span>
-            <span class="operator">=</span>
-            <div
-              class="answer-slot"
-              :class="{
-                'has-answer': problem.userAnswer !== null,
-                correct: problem.isCorrect,
-                incorrect: problem.userAnswer !== null && !problem.isCorrect,
-                shake: problem.isShaking,
-              }"
-            >
-              <span v-if="problem.userAnswer !== null">{{ problem.userAnswer }}</span>
-              <ConfettiExplosion v-if="problem.showConfetti" />
+      <div class="game-layout">
+        <div class="drawing-section">
+          <DrawingPad />
+        </div>
+        <div class="game-section">
+          <div class="questions-grid">
+            <div v-for="(problem, index) in problems" :key="index" class="problem-card">
+              <div class="problem-display" @dragover.prevent @drop="dropAnswer($event, index)">
+                <span class="number">{{ problem.num1 }}</span>
+                <span class="operator">+</span>
+                <span class="number">{{ problem.num2 }}</span>
+                <span class="operator">=</span>
+                <div
+                  class="answer-slot"
+                  :class="{
+                    'has-answer': problem.userAnswer !== null,
+                    correct: problem.isCorrect,
+                    incorrect: problem.userAnswer !== null && !problem.isCorrect,
+                    shake: problem.isShaking,
+                  }"
+                >
+                  <span v-if="problem.userAnswer !== null">{{ problem.userAnswer }}</span>
+                  <ConfettiExplosion v-if="problem.showConfetti" />
+                </div>
+              </div>
             </div>
           </div>
+
+          <div class="answers-container">
+            <div
+              v-for="answerCard in availableAnswers"
+              :key="answerCard.id"
+              class="answer-card"
+              draggable="true"
+              @dragstart="dragStart($event, answerCard.id)"
+              :class="{ used: answerCard.used }"
+            >
+              {{ answerCard.value }}
+            </div>
+          </div>
+
+          <div class="score-display" v-if="showScore">
+            <div class="score-text" :class="{ perfect: score === problems.length }">
+              Score: {{ score }}/{{ problems.length }}
+            </div>
+          </div>
+
+          <button @click="generateNewProblems" class="next-button" v-if="showScore">
+            Next Set of Problems
+          </button>
         </div>
       </div>
-
-      <div class="answers-container">
-        <div
-          v-for="answerCard in availableAnswers"
-          :key="answerCard.id"
-          class="answer-card"
-          draggable="true"
-          @dragstart="dragStart($event, answerCard.id)"
-          :class="{ used: answerCard.used }"
-        >
-          {{ answerCard.value }}
-        </div>
-      </div>
-
-      <div class="score-display" v-if="showScore">
-        <div class="score-text" :class="{ perfect: score === problems.length }">
-          Score: {{ score }}/{{ problems.length }}
-        </div>
-      </div>
-
-      <button @click="generateNewProblems" class="next-button" v-if="showScore">
-        Next Set of Problems
-      </button>
     </div>
   </div>
 </template>
@@ -54,6 +61,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import ConfettiExplosion from 'vue-confetti-explosion'
+import DrawingPad from './DrawingPad.vue'
 
 interface Problem {
   num1: number
@@ -209,7 +217,7 @@ generateNewProblems()
 
 <style scoped>
 .math-game {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -219,6 +227,20 @@ generateNewProblems()
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+}
+
+.drawing-section {
+  min-width: 300px;
+}
+
+.game-section {
+  flex: 1;
 }
 
 .questions-grid {
