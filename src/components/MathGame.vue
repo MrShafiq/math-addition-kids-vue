@@ -220,6 +220,8 @@ generateNewProblems()
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .game-container {
@@ -233,6 +235,35 @@ generateNewProblems()
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .drawing-section {
+    min-width: unset;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .questions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .math-game {
+    padding: 10px;
+  }
+
+  .game-container {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
 }
 
 .drawing-section {
@@ -254,15 +285,15 @@ generateNewProblems()
   background: #f8f9fa;
   border-radius: 8px;
   padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .problem-display {
-  font-size: 1.5rem;
-  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
+  font-size: 1.2rem;
 }
 
 .number {
@@ -275,18 +306,15 @@ generateNewProblems()
 }
 
 .answer-slot {
-  min-width: 60px;
+  min-width: 40px;
   height: 40px;
   border: 2px dashed #ccc;
-  border-radius: 5px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  cursor: pointer;
+  padding: 0 10px;
   transition: all 0.3s ease;
-  position: relative; /* Needed for positioning confetti */
-  overflow: visible; /* Allow confetti to go outside the slot */
 }
 
 .answer-slot.has-answer {
@@ -294,54 +322,82 @@ generateNewProblems()
 }
 
 .answer-slot.correct {
-  border-color: #4caf50;
-  background-color: #e8f5e9;
-  animation: correct-pulse 0.5s ease;
+  border-color: #28a745;
+  background-color: #d4edda;
 }
 
 .answer-slot.incorrect {
-  border-color: #f44336;
-  background-color: #ffebee;
+  border-color: #dc3545;
+  background-color: #f8d7da;
 }
 
 .answer-slot.shake {
-  animation: shake 0.5s ease;
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
 }
 
 .answers-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
-  min-height: 60px;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  margin-top: 20px;
+}
+
+@media (max-width: 480px) {
+  .answers-container {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  }
+
+  .problem-display {
+    font-size: 1rem;
+  }
+
+  .answer-slot {
+    min-width: 35px;
+    height: 35px;
+  }
 }
 
 .answer-card {
-  width: 50px;
-  height: 50px;
-  background: var(--primary-color);
-  color: white;
+  background: #fff;
+  border: 2px solid #007bff;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  cursor: move;
-  transition: all 0.3s ease;
+  padding: 10px;
+  text-align: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: all 0.2s ease;
+}
+
+.answer-card:active {
+  cursor: grabbing;
+  transform: scale(0.95);
 }
 
 .answer-card.used {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.answer-card:hover:not(.used) {
-  transform: scale(1.05);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-color: #ccc;
 }
 
 .score-display {
@@ -364,49 +420,27 @@ generateNewProblems()
   animation: celebrate 1s ease;
 }
 
-button {
+.next-button {
   display: block;
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  font-size: 1.1rem;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
 }
 
-.next-button {
-  background-color: var(--secondary-color);
-  color: white;
+.next-button:hover {
+  background-color: #0056b3;
 }
 
-button:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-5px);
-  }
-  75% {
-    transform: translateX(5px);
-  }
-}
-
-@keyframes correct-pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
+@media (max-width: 480px) {
+  .next-button {
+    width: 100%;
+    padding: 12px;
   }
 }
 

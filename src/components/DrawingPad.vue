@@ -204,6 +204,8 @@ watch(strokeWidth2, (newWidth) => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .canvas-section {
@@ -219,12 +221,17 @@ canvas {
   border: 1px solid #ddd;
   border-radius: 4px;
   touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .controls {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .color-picker {
@@ -234,10 +241,75 @@ canvas {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  -webkit-appearance: none;
+  background: none;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
 }
 
 .stroke-width {
   flex: 1;
   max-width: 100px;
+  -webkit-appearance: none;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  outline: none;
+}
+
+.stroke-width::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.stroke-width::-webkit-slider-thumb:hover {
+  background: #0056b3;
+}
+
+.btn {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .drawing-pad {
+    padding: 8px;
+    gap: 15px;
+  }
+
+  canvas {
+    height: 200px;
+  }
+
+  .controls {
+    gap: 8px;
+  }
+
+  .color-picker {
+    width: 35px;
+    height: 35px;
+  }
+
+  .stroke-width {
+    max-width: 80px;
+  }
+
+  .btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
 }
 </style>
